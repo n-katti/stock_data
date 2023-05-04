@@ -1,0 +1,45 @@
+import requests
+import os
+import sys
+import json
+import copy
+import pandas as pd
+
+sys.path.append(os.path.realpath(__file__).split("stock_data")[0]+"stock_data")
+
+polygon_key = ""
+
+# from lib.helper import *
+# from lib.env import *
+
+open_close = "https://api.polygon.io/v1/open-close/{ticker}/{date}?adjusted=true&apiKey={polygon_key}"
+company_details = "https://api.polygon.io/v3/reference/tickers/{ticker}?apiKey={polygon_key}"
+
+
+def get_company_details(ticker):
+    r = requests.get(company_details.format(polygon_key = polygon_key, ticker=ticker))
+    response_text = r.text
+    response_dict = json.loads(r.text)
+    results_dict = response_dict["results"]
+    interested_keys = ["ticker", "name", "homepage_url", "phone_number", "market_cap", "currency_name", "address", "total_employees"]
+    interested_results = {}
+    for key in interested_keys:
+        address_string = ""
+        if key == 'address':
+                for address_key in results_dict["address"].keys():
+                    address_string = address_string + " " + results_dict["address"][address_key]
+                    address_string = address_string[1:]
+                interested_results[key] = address_string    
+        else:
+            interested_results[key] = results_dict[key]
+
+    return copy.deepcopy(interested_results)
+
+
+tickers = ["AAPL", "TSLA", "AMZN"]
+dataa = []
+for ticker in tickers: 
+     dataa.append(get_company_details(ticker))
+
+companies_df = pd.DataFrame(dataa)
+print(companies_df)
