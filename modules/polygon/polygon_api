@@ -61,7 +61,10 @@ def open_close_to_df(tickers):
         # for v in value: 
         #     all_data.append(get_open_close(key, str(v)))
         all_data.append(get_open_close(key, str(value)))
-    return pd.DataFrame(all_data)
+    df = pd.DataFrame(all_data)
+    df = df.loc[:, df.columns != "status"]
+    df = df.rename(columns={"from" : "date"})
+    return df
 
 tickers = ["AMZN", "TSLA"]
 dates = ["2023-05-03", "2023-03-02"]
@@ -70,5 +73,5 @@ ticker_dates = list(itertools.product(tickers, dates))
 # tickers = {"AMZN": ["2023-05-03", "2023-03-02"], "TSLA" : ["2023-05-02"]}
 # # print(tickers)
 
-# print(open_close_to_df(tickers=ticker_dates))
-print(company_detail_to_df(tickers=tickers))
+print(open_close_to_df(tickers=ticker_dates))
+# print(company_detail_to_df(tickers=tickers))
